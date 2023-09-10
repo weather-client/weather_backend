@@ -4,13 +4,13 @@
     "module": "commonjs",
     "declaration": true,
     "sourceMap": true,
-    // "outDir": "dist",
+    "outDir": "dist",
     "isolatedModules": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "skipLibCheck": true
   },
-  "include": ["main.ts", "src/**/*"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "src/__tests__"]
 }
