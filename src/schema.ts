@@ -3,9 +3,9 @@
 export type WeatherStation = {
     id: string;
     name: string;
-    location: Location;
+    location?: Location;
     lastUpdate: number;
-    lastWeatherData: WeatherData;
+    lastWeatherData?: WeatherData;
 }
 
 export type Location = {
