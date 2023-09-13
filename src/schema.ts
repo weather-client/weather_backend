@@ -25,3 +25,9 @@ export type WeatherData = {
     location: Location;
     records: WeatherRecord[];
 }
+
+export type PartialPacket = {
+    currentPos: number;
+    totalLength: number;
+    message: string;
+}

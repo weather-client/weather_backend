@@ -10,7 +10,8 @@ const firebaseApp = admin.initializeApp({
 firebaseApp.firestore().settings({ ignoreUndefinedProperties: true });
 
 import { WeatherDataManager } from "./managers/weatherData";
-import { WeatherData } from "./schema";
+import { PartialPacket, WeatherData } from "./schema";
+import { WeatherStationManager } from "./managers/weatherStation";
 
 const app = express();
 app.use(express.json());
@@ -80,6 +81,70 @@ app.post("/weatherData", async (req: any, res: any) => {
 		success: true,
 		message: "OK",
 	});
+});
+
+app.post("/weatherDataLora", async (req: any, res: any) => {
+	let body = req.body;
+	let payload = body.payload; // Payload in base64
+	let payloadDecoded = Buffer.from(payload, "base64").toString("ascii"); // Payload in ascii
+	// PayloadDecoded format: 0:91:8808:abcdefghijklmabcdefghijklmabcdefghij
+	const currentPos = parseInt(
+		payloadDecoded.substring(0, payloadDecoded.indexOf(":"))
+	);
+	payloadDecoded = payloadDecoded.substring(payloadDecoded.indexOf(":") + 1);
+	const totalLength = parseInt(
+		payloadDecoded.substring(0, payloadDecoded.indexOf(":"))
+	);
+	payloadDecoded = payloadDecoded.substring(payloadDecoded.indexOf(":") + 1);
+	const stationId = payloadDecoded.substring(0, payloadDecoded.indexOf(":"));
+	payloadDecoded = payloadDecoded.substring(payloadDecoded.indexOf(":") + 1);
+	let message = payloadDecoded;
+
+	// Message splited to multiple packets, need to wait for all packets and combine them
+	let isReady: boolean = await WeatherStationManager.setPartialPacket(
+		stationId,
+		currentPos,
+		totalLength,
+		message
+	);
+	if (!isReady) {
+		res.send({
+			success: true,
+			message: "OK",
+		});
+	} else {
+		let packet: PartialPacket | undefined =
+			await WeatherStationManager.getPartialPacket(stationId);
+		if (!packet) {
+			res.send({
+				success: false,
+				message: "Error",
+			});
+			return;
+		}
+		let message = packet.message;
+		// Replacing ' with ", ts -> timestamp, ws -> windSpeed, wd -> windDirection, t -> temperature, h -> humidity, loc -> location, rcs -> records
+		message = message.replace(/'/g, '"');
+		message = message.replace(/"ts"/g, '"timestamp"');
+		message = message.replace(/"ws"/g, '"windSpeed"');
+		message = message.replace(/"wd"/g, '"windDirection"');
+		message = message.replace(/"t"/g, '"temperature"');
+		message = message.replace(/"h"/g, '"humidity"');
+		message = message.replace(/"loc"/g, '"location"');
+		message = message.replace(/"rcs"/g, '"records"');
+
+		try {
+			let weatherData: WeatherData = JSON.parse(message);
+			await WeatherDataManager.addWeatherData(stationId, weatherData);
+		} catch (error) {
+			console.log(error);
+		}
+		await WeatherStationManager.deletePartialPacket(stationId);
+		res.send({
+			success: true,
+			message: "OK",
+		});
+	}
 });
 
 app.listen(port, () => {
