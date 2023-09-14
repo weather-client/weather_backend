@@ -26,6 +26,7 @@ export class WeatherDataManager {
         if (await WeatherStationManager.getWeatherStation(stationId) === undefined) {
             await WeatherStationManager.initializeWeatherStation(stationId);
         }
+		weatherData.timestamp = new Date().getTime();
 		await firestore.collection("weatherData").add(Object.assign(weatherData, { stationId }));
 		await firestore.collection("weatherStations").doc(stationId).update({
 			lastUpdate: new Date().getTime(),
