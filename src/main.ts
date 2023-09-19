@@ -132,6 +132,7 @@ app.post("/weatherDataLora", async (req: any, res: any) => {
 		message = message.replace(/"h"/g, '"humidity"');
 		message = message.replace(/"loc"/g, '"location"');
 		message = message.replace(/"rcs"/g, '"records"');
+		message = message.replace(/"a"/g, '"air"');
 
 		try {
 			let weatherData: WeatherData = JSON.parse(message);
