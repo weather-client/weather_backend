@@ -28,7 +28,7 @@ app.get("/weatherData", async (req: any, res: any) => {
 	const to = req.query.to || new Date().getTime();
 
 	if (!stationId) {
-		res.send({
+		res.status(400).send({
 			success: false,
 			message: "Missing stationId",
 		});
@@ -59,7 +59,7 @@ app.post("/weatherData", async (req: any, res: any) => {
 	const weatherData: WeatherData = unzipWeatherData(req.body);
 
 	if (!stationId) {
-		res.send({
+		res.status(400).send({
 			success: false,
 			message: "Missing stationId",
 		});
@@ -71,7 +71,7 @@ app.post("/weatherData", async (req: any, res: any) => {
 		!weatherData.data ||
 		weatherData.data.length === 0
 	) {
-		res.send({
+		res.status(400).send({
 			success: false,
 			message: "Missing weatherData",
 		});
@@ -118,7 +118,7 @@ app.post("/weatherDataLora", async (req: any, res: any) => {
 		let packet: PartialPacket | undefined =
 			await WeatherStationManager.getPartialPacket(stationId);
 		if (!packet) {
-			res.send({
+			res.status(400).send({
 				success: false,
 				message: "Error",
 			});
