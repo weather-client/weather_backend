@@ -68,8 +68,8 @@ app.post("/weatherData", async (req: any, res: any) => {
 	if (
 		!weatherData ||
 		weatherData.location === undefined ||
-		!weatherData.records ||
-		weatherData.records.length === 0
+		!weatherData.data ||
+		weatherData.data.length === 0
 	) {
 		res.send({
 			success: false,

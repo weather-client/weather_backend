@@ -15,17 +15,19 @@ export type Location = {
 }
 
 export type WeatherRecord = {
-    windSpeed: number;
-    windDirection: string;
-    temperature: number;
-    humidity: number;
+    windSpeed: [number];
+    windDirection: [string];
+    air: [{
+        temperature: [number];
+        humidity: [number];
+    }];
 }
 
 export type WeatherData = {
     timestamp: number;
     location: Location;
     source: WeatherDataSource;
-    records: WeatherRecord[];
+    data: WeatherRecord[];
 }
 
 export type PartialPacket = {
