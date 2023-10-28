@@ -10,7 +10,7 @@ const firebaseApp = admin.initializeApp({
 firebaseApp.firestore().settings({ ignoreUndefinedProperties: true });
 
 import { WeatherDataManager } from "./managers/weatherData";
-import { PartialPacket, WeatherData } from "./schema";
+import { PartialPacket, WeatherData, WeatherDataSource } from "./schema";
 import { WeatherStationManager } from "./managers/weatherStation";
 
 const app = express();
@@ -54,6 +54,7 @@ app.get("/weatherData", async (req: any, res: any) => {
 
 app.post("/weatherData", async (req: any, res: any) => {
 	const stationId: string = req.query.stationId;
+	const source: string = req.query.source;
 	const weatherData: WeatherData = req.body;
 
 	if (!stationId) {
@@ -75,7 +76,7 @@ app.post("/weatherData", async (req: any, res: any) => {
 		});
 		return;
 	}
-
+	weatherData.source = source as WeatherDataSource;
 	await WeatherDataManager.addWeatherData(stationId, weatherData);
 	res.send({
 		success: true,
@@ -136,6 +137,7 @@ app.post("/weatherDataLora", async (req: any, res: any) => {
 
 		try {
 			let weatherData: WeatherData = JSON.parse(message);
+			weatherData.source = "lora";
 			await WeatherDataManager.addWeatherData(stationId, weatherData);
 		} catch (error) {
 			console.log(error);

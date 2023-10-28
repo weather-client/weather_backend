@@ -1,5 +1,5 @@
 
-export type WeatherDataSource = "Eth" | "Lora" | "Wifi" | "Cellular";
+export type WeatherDataSource = "eth" | "lora" | "wifi" | "cellular";
 
 export type WeatherStation = {
     id: string;
