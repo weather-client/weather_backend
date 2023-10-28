@@ -3,7 +3,6 @@ import { WeatherData } from "./schema";
 
 export function unzipWeatherData(data: any): WeatherData {
     let message = JSON.stringify(data);
-    message = message.replace(/'/g, '"');
     message = message.replace(/"ts"/g, '"timestamp"');
     message = message.replace(/"ws"/g, '"windSpeed"');
     message = message.replace(/"wd"/g, '"windDirection"');

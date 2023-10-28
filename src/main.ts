@@ -126,6 +126,7 @@ app.post("/weatherDataLora", async (req: any, res: any) => {
 		}
 
 		try {
+			packet.message = packet.message.replace(/'/g, '"');
 			let weatherData: WeatherData = unzipWeatherData(
 				JSON.parse(packet.message)
 			);
