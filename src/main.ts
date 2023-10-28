@@ -12,6 +12,7 @@ firebaseApp.firestore().settings({ ignoreUndefinedProperties: true });
 import { WeatherDataManager } from "./managers/weatherData";
 import { PartialPacket, WeatherData, WeatherDataSource } from "./schema";
 import { WeatherStationManager } from "./managers/weatherStation";
+import { unzipWeatherData } from "./utils";
 
 const app = express();
 app.use(express.json());
@@ -55,7 +56,7 @@ app.get("/weatherData", async (req: any, res: any) => {
 app.post("/weatherData", async (req: any, res: any) => {
 	const stationId: string = req.query.stationId;
 	const source: string = req.query.source;
-	const weatherData: WeatherData = req.body;
+	const weatherData: WeatherData = unzipWeatherData(req.body);
 
 	if (!stationId) {
 		res.send({
@@ -123,21 +124,13 @@ app.post("/weatherDataLora", async (req: any, res: any) => {
 			});
 			return;
 		}
-		let message = packet.message;
-		// Replacing ' with ", ts -> timestamp, ws -> windSpeed, wd -> windDirection, t -> temperature, h -> humidity, loc -> location, rcs -> records
-		message = message.replace(/'/g, '"');
-		message = message.replace(/"ts"/g, '"timestamp"');
-		message = message.replace(/"ws"/g, '"windSpeed"');
-		message = message.replace(/"wd"/g, '"windDirection"');
-		message = message.replace(/"t"/g, '"temperature"');
-		message = message.replace(/"h"/g, '"humidity"');
-		message = message.replace(/"loc"/g, '"location"');
-		message = message.replace(/"rcs"/g, '"records"');
-		message = message.replace(/"a"/g, '"air"');
 
 		try {
-			let weatherData: WeatherData = JSON.parse(message);
+			let weatherData: WeatherData = unzipWeatherData(
+				JSON.parse(packet.message)
+			);
 			weatherData.source = "lora";
+			weatherData.timestamp = new Date().getTime();
 			await WeatherDataManager.addWeatherData(stationId, weatherData);
 		} catch (error) {
 			console.log(error);
