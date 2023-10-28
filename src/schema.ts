@@ -1,4 +1,5 @@
 
+export type WeatherDataSource = "Eth" | "Lora" | "Wifi" | "Cellular";
 
 export type WeatherStation = {
     id: string;
@@ -23,6 +24,7 @@ export type WeatherRecord = {
 export type WeatherData = {
     timestamp: number;
     location: Location;
+    source: WeatherDataSource;
     records: WeatherRecord[];
 }
 
